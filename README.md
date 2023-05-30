@@ -21,7 +21,7 @@ cookbooks/
 
 上述结构中的关键文件和文件夹说明如下：
 
-- `your_cookbook/`：Cookbook的根目录，其名称根据您的Cookbook名称而定。
+- `your_cookbook/`：Cookbook的根目录，其名称根据Cookbook名称而定。
 - `recipes/`：存放Cookbook的recipes的文件夹。
 - `default.rb`：Cookbook的默认recipe，可以在此文件中引入其他recipes。
 - `opensearch.rb`、opensearch_dashboards.rb、nginx.rb、golang_deploy.rb：各个组件的recipes文件。
@@ -30,7 +30,7 @@ cookbooks/
 - `config.yml.erb、nginx.conf.erb`：示例模板文件，可以根据需求创建更多模板文件。
 - `files/`：存放文件资源的文件夹。
 - `default/`：存放默认文件资源的子文件夹。
-- `your_golang_app_binary`：您的Golang程序的二进制文件。
+- `your_golang_app_binary`：Golang程序的二进制文件。
 
 ## golang_deploy.rb
 
@@ -79,3 +79,46 @@ cookbooks/
 
 具体来说，这段代码：指定了在模板文件更新后，通知 nginx 服务进行重启。:restart 表示重启操作，'service[nginx]' 表示要通知的资源是 nginx 服务资源。
 而 :delayed 表示这个通知是一个延迟通知，即在整个 Chef Run 完成后才会执行。这意味着当模板文件更新时，Nginx 服务不会立即重启，而是在整个 Chef Run 结束后，根据触发通知的条件执行重启操作
+
+## default 和 node
+
+在 Chef 中，default 和 node 关键字通常用于在 Cookbook 中的属性文件中定义和访问节点属性。
+
+Chef Cookbook 通常包含以下两个文件用于管理属性：
+
+1. attributes/default.rb：这个文件是默认属性文件，用于定义 Cookbook 的默认属性。在该文件中使用 default 关键字来设置默认属性的值。
+2. attributes/<custom_file>.rb：这个文件是自定义属性文件，可以根据需要创建多个自定义属性文件。在这些文件中，同样使用 default 关键字定义属性的默认值。
+
+下面是一个示例目录结构，展示了 Cookbook 中属性文件的典型位置：
+
+```bash
+cookbooks/
+  my_cookbook/
+    attributes/
+      default.rb
+      custom_attributes.rb
+    recipes/
+      default.rb
+      other_recipe.rb
+```
+
+在 default.rb 和 custom_attributes.rb 文件中，可以使用 default 关键字定义和访问节点属性。例如：
+
+```bash
+# attributes/default.rb
+default['my_cookbook']['version'] = '1.0.0'
+default['my_cookbook']['server'] = 'webserver.example.com'
+
+# attributes/custom_attributes.rb
+default['my_cookbook']['custom_option'] = 'custom_value'
+```
+
+然后，可以在 Cookbook 的其他文件中（如 recipes/*.rb）使用 node 关键字来访问节点属性，执行相应的操作。
+
+```bash
+# recipes/default.rb
+version = node['my_cookbook']['version']
+server = node['my_cookbook']['server']
+custom_option = node['my_cookbook']['custom_option']
+```
+
